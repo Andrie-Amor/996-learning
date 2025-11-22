@@ -46,3 +46,25 @@ class KeyStringPair : public KeyValuePair<Key, std::string> {};
 
 template <typename Value>
 class IntegerValuePair : public KeyValuePair<int, Value> {};
+
+// Traits
+
+// Detect std::string
+template <typename T>
+struct isStdString : std::false_type {};
+
+template <>
+struct isStdString<std::string> : std::true_type {};
+
+// Detect const-qualified types
+template <typename T>
+struct IsConst : std::false_type {};
+
+template <typename T>
+struct IsConst<const T> : std::true_type {};
+
+// Remove references
+template <typename T>
+struct RemoveReference {
+  using type = T;
+};
