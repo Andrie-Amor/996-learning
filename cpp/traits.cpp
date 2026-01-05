@@ -27,12 +27,16 @@ template <typename T>
 struct IsPointer {
   static constexpr bool value = false;
 };
+// NOTE!! This is equivalent to
+// struct IsPointer : std::false_type {};
 
 // Partial specialization
 template <typename T>
 struct IsPointer<T*> {  // Only takes pointer types
   static constexpr bool value = true;
 };
+// Equivalent to
+// struct IsPointer<T*> : std::true_type {};
 
 // Example 2:
 template <typename Key, typename Value>
@@ -52,6 +56,11 @@ class IntegerValuePair : public KeyValuePair<int, Value> {};
 // Detect std::string
 template <typename T>
 struct isStdString : std::false_type {};
+// Note: observe that isStdString inherits from std::true_type which is
+// struct false_type {
+//   static constexpr bool = false;
+//   using type = false_type;
+// }
 
 template <>
 struct isStdString<std::string> : std::true_type {};
@@ -64,7 +73,29 @@ template <typename T>
 struct IsConst<const T> : std::true_type {};
 
 // Remove references
+
+// e.g. RemoveReference<int>::type -> int
+// e.g. RemoveReference<const double>::type -> const double
 template <typename T>
 struct RemoveReference {
   using type = T;
 };
+
+// RemoveReference<int&>::type -> int
+// RemoveReference<const int&>::type -> const int
+template <typename T>
+struct RemoveReference<T&> {
+  using type = T;
+};
+
+// RemoveReference<int&&>::type -> int
+// RemoveReference<const int&&>::type -> const int
+template <typename T>
+struct RemoveReference<T&&> {
+  using type = T;
+};
+
+// Alias template
+// Allows you to use RemoveReferenceT<T> to get type easier
+template <typename T>
+using RemoveReferenceT = typename RemoveReference<T>::type;
